@@ -37,7 +37,6 @@ C:\Users\Robert\source\repos\PMSWebApi\PMSWebApi\bin\Debug\netcoreapp3.1\System.
 C:\Users\Robert\source\repos\PMSWebApi\PMSWebApi\bin\Debug\netcoreapp3.1\System.Runtime.Caching.dll
 C:\Users\Robert\source\repos\PMSWebApi\PMSWebApi\bin\Debug\netcoreapp3.1\System.Security.Cryptography.ProtectedData.dll
 C:\Users\Robert\source\repos\PMSWebApi\PMSWebApi\bin\Debug\netcoreapp3.1\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
-C:\Users\Robert\source\repos\PMSWebApi\PMSWebApi\obj\Debug\netcoreapp3.1\PMSWebApi.csprojAssemblyReference.cache
 C:\Users\Robert\source\repos\PMSWebApi\PMSWebApi\obj\Debug\netcoreapp3.1\PMSWebApi.AssemblyInfoInputs.cache
 C:\Users\Robert\source\repos\PMSWebApi\PMSWebApi\obj\Debug\netcoreapp3.1\PMSWebApi.AssemblyInfo.cs
 C:\Users\Robert\source\repos\PMSWebApi\PMSWebApi\obj\Debug\netcoreapp3.1\PMSWebApi.csproj.CoreCompileInputs.cache
