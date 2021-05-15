@@ -12,6 +12,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+
 
 namespace PMSWebApi
 {
@@ -30,6 +32,7 @@ namespace PMSWebApi
             services.AddControllers(); 
             services.AddDbContext<PMSWebApiContext>(options => options.UseSqlServer(Configuration.GetConnectionString("PMSWebApiDb")));
             services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddAutoMapper(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

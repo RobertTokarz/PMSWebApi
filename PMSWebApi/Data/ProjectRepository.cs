@@ -23,15 +23,77 @@ namespace PMSWebApi.Data
         public async Task<Project> GetProjectAsync(string code, bool inculdeTasks = false, bool includeSubProjects = false)
         {
             _logger.LogInformation($"Get project specified by code from DB.");
-            return await _context.Projects.Include(a => a.SubProjects).Include(a => a.Tasks).Where(p => p.Code == code).FirstOrDefaultAsync();
+            IQueryable<Project> query = _context.Projects.Where(x=>x.Code == code);
+            if (inculdeTasks)
+            {
+                query = query.Include(p => p.Tasks);
+            }
+            if (includeSubProjects)
+            {
+                query = query.Include(p => p.SubProjects);
+            }
+
+            return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<Project>> GetProjectsAsync()
+        public async Task<IEnumerable<Project>> GetProjectsAsync(bool inculdeTasks = false, bool includeSubProjects = false)
         {
             _logger.LogInformation($"Get all projects from DB.");
-            return await _context.Projects.Include(a => a.SubProjects).Include(a => a.Tasks).ToListAsync();
+            IQueryable<Project> query = _context.Projects;
+            if (inculdeTasks)
+            {
+                query = query.Include(p => p.Tasks);
+            }
+            if (includeSubProjects)
+            {
+                query = query.Include(p => p.SubProjects);
+            }
+            return await query.ToListAsync();
         }
 
+        public async Task<IEnumerable<SubProject>> GetSubProjectsAsync(string projectCode, bool inculdeTasks = false)
+        {
+            _logger.LogInformation($"Get all subprojects from DB.");
+            IQueryable<SubProject> query = _context.Projects.Where(p => p.Code == projectCode).SelectMany(x => x.SubProjects);
+            if (inculdeTasks)
+            {
+                query = query.Include(p => p.Tasks);
+            }
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<SubProject> GetSubProjectAsync(string projectCode, string code , bool inculdeTasks = false)
+        {
+            _logger.LogInformation($"Get subproject specified by id from DB.");
+            IQueryable<SubProject> query = _context.Projects.Where(p =>p.Code == projectCode).SelectMany(x => x.SubProjects).Where(y => y.Code == code);
+            if (inculdeTasks)
+            {
+               query = query.Include(p => p.Tasks);
+            }
+   
+            return await query.FirstOrDefaultAsync();
+        }
+
+        public Task<IEnumerable<Model.Task>> GetTaskAsync(bool inculdeSubTasks = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Model.Task> GetTaskAsync(int id, bool inculdeSubTasks = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<SubTask>> GetSubTasksAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Model.Task> GetSubTaskAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
 
         public void AddEntity<T>(T entity)
         {
@@ -39,10 +101,9 @@ namespace PMSWebApi.Data
             _context.Add(entity);
         }
 
-        public async Task<bool> SaveChangesAsync()
+        public void UpdateEntity<T>(T entity)
         {
-            _logger.LogInformation($"Save changes to DB.");
-            return (await _context.SaveChangesAsync()) > 0;
+            _context.Update(entity);
         }
 
         public void DeleteEntity<T>(T entity)
@@ -50,5 +111,31 @@ namespace PMSWebApi.Data
             _logger.LogInformation($"Delete {entity.GetType()} from DB.");
             _context.Remove(entity);
         }
+
+        public async Task<bool> SaveChangesAsync()
+        {
+
+            _logger.LogInformation($"Save changes to DB.");
+            return (await _context.SaveChangesAsync()) > 0;
+        }
+
+
+        public void UpdateProjectState(Project project, State state)
+        {
+            _logger.LogInformation($"Update project state {project.Code}.");
+            if (state == State.inProgress)
+            {
+                project.State = state;
+            }
+            if (project.Tasks.Where(x => x.State != State.Completed) == null
+                || project.SubProjects.Where(x => x.State != State.Completed) == null
+                || project.Tasks.SelectMany(s => s.SubTasks).Where(st => st.State != State.Completed) == null)
+            {
+                project.State = State.Completed;
+            }
+
+        }
+
+
     }
 }

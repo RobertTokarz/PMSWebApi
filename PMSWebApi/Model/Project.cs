@@ -10,6 +10,7 @@ namespace PMSWebApi.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override int Id { get ; set; }
+        [Required]
         public override string Code { get ; set; }
         public override string Name { get; set; }
         public override DateTime StartDate { get; set; }

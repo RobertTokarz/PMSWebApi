@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PMSWebApi.Data;
 using PMSWebApi.Model;
@@ -16,39 +17,40 @@ namespace PMSWebApi.Controllers
     public class ProjectsController : ControllerBase
     {
         private readonly IProjectRepository _projectRepository;
+        private readonly IMapper _mapper;
 
-        
-        public ProjectsController(IProjectRepository projectRepository)
+        public ProjectsController(IProjectRepository projectRepository, IMapper mapper)
         {
+            _mapper = mapper;
             _projectRepository = projectRepository;
-        } 
+        }
 
         // GET: api/<ProjectsController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Project>>> Get()
+        public async Task<ActionResult<IEnumerable<Project>>> Get(bool includeTasks, bool includeSubProjects)
         {
             try
             {
-                return Ok(await _projectRepository.GetProjectsAsync());
+                return Ok(await _projectRepository.GetProjectsAsync(includeTasks, includeSubProjects));
             }
             catch(Exception)
             {
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "DB Issue");
+                return StatusCode(StatusCodes.Status500InternalServerError, "DB Issue");
             }
             
         }
 
         // GET api/<ProjectsController>/5
         [HttpGet("{code}")]
-        public async Task<ActionResult<Project>> Get(string code)
+        public async Task<ActionResult<Project>> Get(string code, bool includeTasks, bool includeSubProjects)
         {
             try
             {
-                return Ok(await _projectRepository.GetProjectAsync(code));
+                return Ok(await _projectRepository.GetProjectAsync(code, includeTasks, includeSubProjects));
             }
             catch (Exception)
             {
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "DB Issue");
+                return StatusCode(StatusCodes.Status500InternalServerError, "DB Issue");
             }
         }
 
@@ -73,7 +75,7 @@ namespace PMSWebApi.Controllers
             }
             catch (Exception)
             {
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "DB Issue");
+                return StatusCode(StatusCodes.Status500InternalServerError, "DB Issue");
             }
 
             return BadRequest();
@@ -81,8 +83,27 @@ namespace PMSWebApi.Controllers
 
         // PUT api/<ProjectsController>/5
         [HttpPut("{code}")]
-        public void Put(string code, [FromBody] Project project)
+        public async Task<ActionResult<Project>> Put(string code, [FromBody] Project project)
         {
+            try
+            {
+                var oldProject = await _projectRepository.GetProjectAsync(code);
+
+                if (oldProject == null) return NotFound($"Project {code} not exists.");
+                                  
+                _mapper.Map(project, oldProject);
+                _projectRepository.UpdateEntity(oldProject);
+                if (await _projectRepository.SaveChangesAsync())
+                {
+                    return Ok(project);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.ToString());
+            }
+
+            return BadRequest();
 
         }
 
