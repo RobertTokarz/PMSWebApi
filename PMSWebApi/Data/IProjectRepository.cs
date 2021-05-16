@@ -15,8 +15,8 @@ namespace PMSWebApi.Data
         Task<IEnumerable<SubProject>> GetSubProjectsAsync(string projectCode,  bool inculdeTasks = false);
         Task<SubProject> GetSubProjectAsync(string projectCode, int id, bool inculdeTasks = false);
 
-        Task<IEnumerable<DTOEntities.Task>> GetTaskAsync(bool inculdeSubTasks = false);
-        Task<DTOEntities.Task> GetTaskAsync(int id, bool inculdeSubTasks = false);
+        Task<IEnumerable<DTOEntities.Task>> GetTasksAsync(string projectCode, bool inculdeSubTasks = false);
+        Task<DTOEntities.Task> GetTaskAsync(string projectCode, int id, bool inculdeSubTasks = false);
 
         Task<IEnumerable<SubTask>> GetSubTasksAsync();
         Task<SubTask> GetSubTaskAsync(int id);

@@ -27,7 +27,7 @@ namespace PMSWebApi.Data
             IQueryable<DTOEntities.Project> query = _context.Projects.Where(x => x.Code == code);
             if (inculdeTasks)
             {
-                query = query.Include(p => p.Tasks);
+                query = query.Include(p => p.Tasks.Where(t => t.ProjectType == ProjectType.Main));
             }
             if (includeSubProjects)
             {
@@ -43,7 +43,7 @@ namespace PMSWebApi.Data
             IQueryable<DTOEntities.Project> query = _context.Projects;
             if (inculdeTasks)
             {
-                query = query.Include(p => p.Tasks);
+                query = query.Include(p => p.Tasks.Where(t=>t.ProjectType == ProjectType.Main));
             }
             if (includeSubProjects)
             {
@@ -58,7 +58,7 @@ namespace PMSWebApi.Data
             IQueryable<SubProject> query = _context.Projects.Where(p => p.Code == projectCode).SelectMany(x => x.SubProjects);
             if (inculdeTasks)
             {
-                query = query.Include(p => p.Tasks);
+                query = query.Include(p => p.Tasks.Where(t => t.ProjectType == ProjectType.Sub));
             }
 
             return await query.ToListAsync();
@@ -70,28 +70,42 @@ namespace PMSWebApi.Data
             IQueryable<SubProject> query = _context.Projects.Where(p =>p.Code == projectCode).SelectMany(x => x.SubProjects).Where(y => y.Id == id);
             if (inculdeTasks)
             {
-               query = query.Include(p => p.Tasks);
+               query = query.Include(p => p.Tasks.Where(t => t.ProjectType == ProjectType.Sub));
             }
    
             return await query.FirstOrDefaultAsync();
         }
 
-        public Task<IEnumerable<DTOEntities.Task>> GetTaskAsync(bool inculdeSubTasks = false)
+        public async Task<IEnumerable<DTOEntities.Task>> GetTasksAsync(string projectCode, bool inculdeSubTasks = false)
+        {
+            _logger.LogInformation($"Get all tasks from DB.");
+            IQueryable<DTOEntities.Task> query = _context.Projects.Where(p => p.Code == projectCode).SelectMany(x => x.Tasks);
+            if (inculdeSubTasks)
+            {
+                query = query.Include(p => p.SubTasks);
+            }
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<DTOEntities.Task> GetTaskAsync(string projectCode, int id, bool inculdeSubTasks = false)
+        {
+            _logger.LogInformation($"Get task specified by id from DB.");
+            IQueryable<DTOEntities.Task> query = _context.Projects.Where(p => p.Code == projectCode).SelectMany(x => x.Tasks).Where(y => y.Id == id);
+            if (inculdeSubTasks)
+            {
+                query = query.Include(p => p.SubTasks);
+            }
+
+            return await query.FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<SubTask>> GetSubTasksAsync()
         {
             throw new NotImplementedException();
         }
 
-        public Task<DTOEntities.Task> GetTaskAsync(int id, bool inculdeSubTasks = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<SubTask>> GetSubTasksAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<SubTask> GetSubTaskAsync(int id)
+        public async Task<SubTask> GetSubTaskAsync(int id)
         {
             throw new NotImplementedException();
         }

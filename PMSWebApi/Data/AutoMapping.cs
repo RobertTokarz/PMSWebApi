@@ -14,6 +14,8 @@ namespace PMSWebApi.Data
         {
             CreateMap<Project, ProjectModel>().ReverseMap();
             CreateMap<SubProject, SubProjectModel >().ReverseMap();
+            CreateMap<DTOEntities.Task, TaskModel>().ReverseMap();
+            CreateMap<SubTask, SubTaskModel>().ReverseMap();
         }
     }
 }

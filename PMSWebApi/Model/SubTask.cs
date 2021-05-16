@@ -17,5 +17,6 @@ namespace PMSWebApi.Model
         public override DateTime FinishDate { get; set; }
         public override State State { get; set; }
 
+
     }
 }

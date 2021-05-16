@@ -43,11 +43,11 @@ namespace PMSWebApi.Controllers
 
         // GET api/projects/{projectCode}/<ProjectsController>/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<SubProject>> Get(string projectCode, int id)
+        public async Task<ActionResult<SubProjectModel>> Get(string projectCode, int id, bool includeTasks)
         {          
             try
             {
-                var result = await _projectRepository.GetSubProjectAsync(projectCode, id);
+                var result = await _projectRepository.GetSubProjectAsync(projectCode, id, includeTasks);
                 if (result == null) return NotFound();
                 return base.Ok(_mapper.Map<SubProjectModel>(result));
              }
@@ -124,7 +124,7 @@ namespace PMSWebApi.Controllers
 
         // DELETE api/projects/{projectCode}/<ProjectsController>/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete( string projectCode, int id)
+        public async Task<IActionResult> Delete(string projectCode, int id)
         {
             try
             {
