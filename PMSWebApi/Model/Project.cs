@@ -5,10 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PMSWebApi.Model
 {
-    public class Project : ProjectBase
+    public class ProjectModel : ProjectBase
     {      
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+ 
         public override int Id { get ; set; }
         [Required]
         public override string Code { get ; set; }
@@ -16,7 +15,7 @@ namespace PMSWebApi.Model
         public override DateTime StartDate { get; set; }
         public override DateTime FinishDate { get; set; }
         public override State State { get; set ; }
-        public IEnumerable<Task> Tasks { get; set; } = new List<Task>();
-        public IEnumerable<SubProject> SubProjects { get; set; } = new List<SubProject>();
+        public IEnumerable<TaskModel> Tasks { get; set; } = new List<TaskModel>();
+        public IEnumerable<SubProjectModel> SubProjects { get; set; } = new List<SubProjectModel>();
     }
 }

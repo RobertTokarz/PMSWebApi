@@ -18,7 +18,7 @@ namespace PMSWebApi.Test
         public void Test1()
         {
            
-            Project project = new Project
+            ProjectModel project = new ProjectModel
             {                
                 Code = "123",
                 Name = "test",
@@ -33,7 +33,7 @@ namespace PMSWebApi.Test
         public void Test2()
         {
 
-            Project project = new Project
+            ProjectModel project = new ProjectModel
             {
                 Code = "123",
                 Name = "test",

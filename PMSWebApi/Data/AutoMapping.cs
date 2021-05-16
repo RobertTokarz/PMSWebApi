@@ -12,7 +12,8 @@ namespace PMSWebApi.Data
     {
        public AutoMapping()
         {
-            CreateMap<Project, ProjectDTO>();
+            CreateMap<Project, ProjectModel>().ReverseMap();
+            CreateMap<SubProject, SubProjectModel >().ReverseMap();
         }
     }
 }

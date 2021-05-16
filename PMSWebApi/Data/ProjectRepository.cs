@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PMSWebApi.DTOEntities;
 using PMSWebApi.Model;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace PMSWebApi.Data
         public async Task<Project> GetProjectAsync(string code, bool inculdeTasks = false, bool includeSubProjects = false)
         {
             _logger.LogInformation($"Get project specified by code from DB.");
-            IQueryable<Project> query = _context.Projects.Where(x=>x.Code == code);
+            IQueryable<DTOEntities.Project> query = _context.Projects.Where(x => x.Code == code);
             if (inculdeTasks)
             {
                 query = query.Include(p => p.Tasks);
@@ -39,7 +40,7 @@ namespace PMSWebApi.Data
         public async Task<IEnumerable<Project>> GetProjectsAsync(bool inculdeTasks = false, bool includeSubProjects = false)
         {
             _logger.LogInformation($"Get all projects from DB.");
-            IQueryable<Project> query = _context.Projects;
+            IQueryable<DTOEntities.Project> query = _context.Projects;
             if (inculdeTasks)
             {
                 query = query.Include(p => p.Tasks);
@@ -63,10 +64,10 @@ namespace PMSWebApi.Data
             return await query.ToListAsync();
         }
 
-        public async Task<SubProject> GetSubProjectAsync(string projectCode, string code , bool inculdeTasks = false)
+        public async Task<SubProject> GetSubProjectAsync(string projectCode, int id , bool inculdeTasks = false)
         {
             _logger.LogInformation($"Get subproject specified by id from DB.");
-            IQueryable<SubProject> query = _context.Projects.Where(p =>p.Code == projectCode).SelectMany(x => x.SubProjects).Where(y => y.Code == code);
+            IQueryable<SubProject> query = _context.Projects.Where(p =>p.Code == projectCode).SelectMany(x => x.SubProjects).Where(y => y.Id == id);
             if (inculdeTasks)
             {
                query = query.Include(p => p.Tasks);
@@ -75,12 +76,12 @@ namespace PMSWebApi.Data
             return await query.FirstOrDefaultAsync();
         }
 
-        public Task<IEnumerable<Model.Task>> GetTaskAsync(bool inculdeSubTasks = false)
+        public Task<IEnumerable<DTOEntities.Task>> GetTaskAsync(bool inculdeSubTasks = false)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Model.Task> GetTaskAsync(int id, bool inculdeSubTasks = false)
+        public Task<DTOEntities.Task> GetTaskAsync(int id, bool inculdeSubTasks = false)
         {
             throw new NotImplementedException();
         }
@@ -90,7 +91,7 @@ namespace PMSWebApi.Data
             throw new NotImplementedException();
         }
 
-        public Task<Model.Task> GetSubTaskAsync(int id)
+        public Task<SubTask> GetSubTaskAsync(int id)
         {
             throw new NotImplementedException();
         }
@@ -99,11 +100,6 @@ namespace PMSWebApi.Data
         {
             _logger.LogInformation($"Add new {entity.GetType()} to DB.");
             _context.Add(entity);
-        }
-
-        public void UpdateEntity<T>(T entity)
-        {
-            _context.Update(entity);
         }
 
         public void DeleteEntity<T>(T entity)
@@ -127,9 +123,10 @@ namespace PMSWebApi.Data
             {
                 project.State = state;
             }
-            if (project.Tasks.Where(x => x.State != State.Completed) == null
-                || project.SubProjects.Where(x => x.State != State.Completed) == null
-                || project.Tasks.SelectMany(s => s.SubTasks).Where(st => st.State != State.Completed) == null)
+          
+            if (!project.Tasks.Any(x => x.State != State.Completed)
+                && !project.SubProjects.Any(x => x.State != State.Completed)
+                && !project.Tasks.SelectMany(s => s.SubTasks).Any(st => st.State != State.Completed))
             {
                 project.State = State.Completed;
             }

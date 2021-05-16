@@ -6,10 +6,9 @@ using System.Text;
 
 namespace PMSWebApi.Model
 {
-    public class SubTask : TaskBase
+    public class SubTaskModel : TaskBase
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+
         public override int Id { get; set; }
         public int TaskId { get; set; }
         public override string Name { get; set; }

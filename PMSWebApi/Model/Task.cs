@@ -6,17 +6,15 @@ using System.Text;
 
 namespace PMSWebApi.Model
 {
-    public class Task: TaskBase
+    public class TaskModel: TaskBase
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override int Id { get; set; }
         public override string Name { get; set; }
         public override string Description { get; set; }
         public override  DateTime StartDate { get; set; } 
         public override DateTime FinishDate { get; set; }
         public override State State { get; set; }
-        public IEnumerable<SubTask> SubTasks { get; set; } = new List<SubTask>();
+        public IEnumerable<SubTaskModel> SubTasks { get; set; } = new List<SubTaskModel>();
         public int ProjectId { get; set; }
     }
 }

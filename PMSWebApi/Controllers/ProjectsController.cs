@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PMSWebApi.Data;
+using PMSWebApi.DTOEntities;
 using PMSWebApi.Model;
 using System;
 using System.Collections.Generic;
@@ -27,11 +28,15 @@ namespace PMSWebApi.Controllers
 
         // GET: api/<ProjectsController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Project>>> Get(bool includeTasks, bool includeSubProjects)
+        public async Task<ActionResult<IEnumerable<ProjectModel>>> Get(bool includeTasks, bool includeSubProjects)
         {
             try
             {
-                return Ok(await _projectRepository.GetProjectsAsync(includeTasks, includeSubProjects));
+                var results = await _projectRepository.GetProjectsAsync(includeTasks, includeSubProjects);
+                if (!results.Any()) return NotFound();
+
+                return  base.Ok(_mapper.Map<IEnumerable<ProjectModel>>(results));
+
             }
             catch(Exception)
             {
@@ -42,11 +47,15 @@ namespace PMSWebApi.Controllers
 
         // GET api/<ProjectsController>/5
         [HttpGet("{code}")]
-        public async Task<ActionResult<Project>> Get(string code, bool includeTasks, bool includeSubProjects)
+        public async Task<ActionResult<ProjectModel>> Get(string code, bool includeTasks, bool includeSubProjects)
         {
             try
             {
-                return Ok(await _projectRepository.GetProjectAsync(code, includeTasks, includeSubProjects));
+                var result = await _projectRepository.GetProjectAsync(code, includeTasks, includeSubProjects);
+                if (result == null) return NotFound();
+
+                return base.Ok(_mapper.Map<ProjectModel>(result));
+
             }
             catch (Exception)
             {
@@ -56,7 +65,7 @@ namespace PMSWebApi.Controllers
 
         // POST api/<ProjectsController>
         [HttpPost]
-        public async Task<ActionResult<Project>> Post([FromBody] Project project)
+        public async Task<ActionResult<ProjectModel>> Post([FromBody] ProjectModel project)
         {
             try
             {
@@ -65,7 +74,8 @@ namespace PMSWebApi.Controllers
                 {
                     return BadRequest("Project already exists.");
                 }
-                 _projectRepository.AddEntity(project);
+
+                _projectRepository.AddEntity(_mapper.Map<DTOEntities.Project>(project));
                 
                 if (await _projectRepository.SaveChangesAsync())
                 {
@@ -83,16 +93,16 @@ namespace PMSWebApi.Controllers
 
         // PUT api/<ProjectsController>/5
         [HttpPut("{code}")]
-        public async Task<ActionResult<Project>> Put(string code, [FromBody] Project project)
+        public async Task<ActionResult<ProjectModel>> Put(string code, [FromBody] ProjectModel project)
         {
             try
             {
                 var oldProject = await _projectRepository.GetProjectAsync(code);
 
                 if (oldProject == null) return NotFound($"Project {code} not exists.");
-                                  
+
                 _mapper.Map(project, oldProject);
-                _projectRepository.UpdateEntity(oldProject);
+
                 if (await _projectRepository.SaveChangesAsync())
                 {
                     return Ok(project);

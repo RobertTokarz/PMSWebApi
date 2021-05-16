@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PMSWebApi.Data;
 
 namespace PMSWebApi.Migrations
 {
     [DbContext(typeof(PMSWebApiContext))]
-    partial class PMSWebApiContextModelSnapshot : ModelSnapshot
+    [Migration("20210516111704_refactored")]
+    partial class refactored
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

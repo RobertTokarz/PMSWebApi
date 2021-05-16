@@ -10,7 +10,7 @@ using PMSWebApi.Data;
 namespace PMSWebApi.Migrations
 {
     [DbContext(typeof(PMSWebApiContext))]
-    [Migration("20210513110112_init")]
+    [Migration("20210515193109_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,7 +21,7 @@ namespace PMSWebApi.Migrations
                 .HasAnnotation("ProductVersion", "5.0.6")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("PMSWebApi.Model.Project", b =>
+            modelBuilder.Entity("PMSWebApi.DTOEntities.ProjectDTO", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -48,7 +48,7 @@ namespace PMSWebApi.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("PMSWebApi.Model.SubProject", b =>
+            modelBuilder.Entity("PMSWebApi.DTOEntities.SubProjectDTO", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -64,6 +64,9 @@ namespace PMSWebApi.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ProjectDTOId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
@@ -75,12 +78,12 @@ namespace PMSWebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("ProjectDTOId");
 
                     b.ToTable("SubProjects");
                 });
 
-            modelBuilder.Entity("PMSWebApi.Model.SubTask", b =>
+            modelBuilder.Entity("PMSWebApi.DTOEntities.SubTaskDTO", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -100,6 +103,9 @@ namespace PMSWebApi.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("State")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TaskDTOId")
                         .HasColumnType("int");
 
                     b.Property<int>("TaskId")
@@ -107,12 +113,12 @@ namespace PMSWebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TaskId");
+                    b.HasIndex("TaskDTOId");
 
                     b.ToTable("SubTasks");
                 });
 
-            modelBuilder.Entity("PMSWebApi.Model.Task", b =>
+            modelBuilder.Entity("PMSWebApi.DTOEntities.TaskDTO", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -128,6 +134,9 @@ namespace PMSWebApi.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ProjectDTOId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
@@ -137,62 +146,56 @@ namespace PMSWebApi.Migrations
                     b.Property<int>("State")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SubProjectId")
+                    b.Property<int?>("SubProjectDTOId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("ProjectDTOId");
 
-                    b.HasIndex("SubProjectId");
+                    b.HasIndex("SubProjectDTOId");
 
                     b.ToTable("Tasks");
                 });
 
-            modelBuilder.Entity("PMSWebApi.Model.SubProject", b =>
+            modelBuilder.Entity("PMSWebApi.DTOEntities.SubProjectDTO", b =>
                 {
-                    b.HasOne("PMSWebApi.Model.Project", null)
+                    b.HasOne("PMSWebApi.DTOEntities.ProjectDTO", null)
                         .WithMany("SubProjects")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProjectDTOId");
                 });
 
-            modelBuilder.Entity("PMSWebApi.Model.SubTask", b =>
+            modelBuilder.Entity("PMSWebApi.DTOEntities.SubTaskDTO", b =>
                 {
-                    b.HasOne("PMSWebApi.Model.Task", null)
+                    b.HasOne("PMSWebApi.DTOEntities.TaskDTO", null)
                         .WithMany("SubTasks")
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TaskDTOId");
                 });
 
-            modelBuilder.Entity("PMSWebApi.Model.Task", b =>
+            modelBuilder.Entity("PMSWebApi.DTOEntities.TaskDTO", b =>
                 {
-                    b.HasOne("PMSWebApi.Model.Project", null)
+                    b.HasOne("PMSWebApi.DTOEntities.ProjectDTO", null)
                         .WithMany("Tasks")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProjectDTOId");
 
-                    b.HasOne("PMSWebApi.Model.SubProject", null)
+                    b.HasOne("PMSWebApi.DTOEntities.SubProjectDTO", null)
                         .WithMany("Tasks")
-                        .HasForeignKey("SubProjectId");
+                        .HasForeignKey("SubProjectDTOId");
                 });
 
-            modelBuilder.Entity("PMSWebApi.Model.Project", b =>
+            modelBuilder.Entity("PMSWebApi.DTOEntities.ProjectDTO", b =>
                 {
                     b.Navigation("SubProjects");
 
                     b.Navigation("Tasks");
                 });
 
-            modelBuilder.Entity("PMSWebApi.Model.SubProject", b =>
+            modelBuilder.Entity("PMSWebApi.DTOEntities.SubProjectDTO", b =>
                 {
                     b.Navigation("Tasks");
                 });
 
-            modelBuilder.Entity("PMSWebApi.Model.Task", b =>
+            modelBuilder.Entity("PMSWebApi.DTOEntities.TaskDTO", b =>
                 {
                     b.Navigation("SubTasks");
                 });

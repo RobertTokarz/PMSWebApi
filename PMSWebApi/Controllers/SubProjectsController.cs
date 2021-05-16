@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PMSWebApi.Data;
+using PMSWebApi.DTOEntities;
 using PMSWebApi.Model;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace PMSWebApi.Controllers
 
         // GET: api/projects/{projectCode}/<ProjectsController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SubProject>>> Get(string projectCode)
+        public async Task<ActionResult<IEnumerable<SubProjectModel>>> Get(string projectCode)
         {
             try
             {
@@ -41,12 +42,12 @@ namespace PMSWebApi.Controllers
         }
 
         // GET api/projects/{projectCode}/<ProjectsController>/5
-        [HttpGet("{code}")]
-        public async Task<ActionResult<SubProject>> Get(string projectCode, string code)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<SubProject>> Get(string projectCode, int id)
         {
             try
             {
-                return Ok(await _projectRepository.GetSubProjectAsync(projectCode, code));
+                return Ok(await _projectRepository.GetSubProjectAsync(projectCode, id));
             }
             catch (Exception)
             {
@@ -56,25 +57,27 @@ namespace PMSWebApi.Controllers
 
         // POST api/projects/{projectCode}/<ProjectsController>
         [HttpPost]
-        public async Task<ActionResult<SubProject>> Post( string projectCode, [FromBody] SubProject subProject)
+        public async Task<ActionResult<SubProjectModel>> Post( string projectCode, [FromBody] SubProject subProject)
         {
             try
             {
-                var existingProject = await _projectRepository.GetProjectAsync(projectCode);
+                var existingProject = await _projectRepository.GetProjectAsync(projectCode, true, true);
                 if (existingProject == null)
                 {
                     return BadRequest("Project not exists.");
                 }
                 
                 subProject.ProjectId = existingProject.Id;
-                if (existingProject.SubProjects.Any(x=>x.Code == subProject.Code))
+
+                if (existingProject.SubProjects != null)
                 {
-                    return BadRequest("Subproject alredy exists.");
-                }    
+                    if(existingProject.SubProjects.Any(x => x.Code == subProject.Code)) return BadRequest($"Subproject {subProject.Code} alredy exists.");
+                }
+                var newEntity = _mapper.Map<SubProject>(subProject);
 
-                _projectRepository.AddEntity(subProject);
+                _projectRepository.AddEntity(newEntity);
 
-                _projectRepository.UpdateProjectState(existingProject ,subProject.State);
+                _projectRepository.UpdateProjectState(existingProject, subProject.State);
 
                 if (await _projectRepository.SaveChangesAsync())
                 {
@@ -83,34 +86,37 @@ namespace PMSWebApi.Controllers
                 }
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "DB Issue");
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.ToString());
             }
 
             return BadRequest();
-        }
+        } 
 
         // PUT api/projects/{projectCode}/<ProjectsController>/5
         [HttpPut("{code}")]
-        public async Task<ActionResult<Project>> Put(string code, [FromBody] Project project)
+        public async Task<ActionResult<SubProjectModel>> Put(string projectCode, string code,[FromBody] SubProject subProject)
         {
             try
             {
-                var oldProject = await _projectRepository.GetProjectAsync(code);
+                var oldSubProject = await _projectRepository.GetSubProjectAsync(projectCode, subProject.Id);
+                if (oldSubProject == null) return NotFound($"Project {subProject.Code} not exists.");
+                var project = await _projectRepository.GetProjectAsync(projectCode);
 
-                if (oldProject == null) return NotFound($"Project {code} not exists.");
-                                  
-                _mapper.Map(project, oldProject);
-                _projectRepository.UpdateEntity(oldProject);
+
+                _mapper.Map(subProject, oldSubProject);
+
+                _projectRepository.UpdateProjectState(project, subProject.State);
+
                 if (await _projectRepository.SaveChangesAsync())
                 {
-                    return Ok(project);
+                    return Ok(subProject);
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "DB issue");
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.ToString());
             }
 
             return BadRequest();

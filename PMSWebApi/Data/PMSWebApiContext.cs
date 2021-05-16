@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PMSWebApi.Model;
+using PMSWebApi.DTOEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace PMSWebApi.Data
 
         public DbSet<Project> Projects { get; set; }
 
-        public DbSet<Model.Task> Tasks { get; set; }
+        public DbSet<DTOEntities.Task> Tasks { get; set; }
 
         public DbSet<SubProject> SubProjects { get; set; }
 
