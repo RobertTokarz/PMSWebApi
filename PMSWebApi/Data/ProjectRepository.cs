@@ -124,7 +124,7 @@ namespace PMSWebApi.Data
                 project.State = state;
             }
           
-            if (!project.Tasks.Any(x => x.State != State.Completed)
+            else if (!project.Tasks.Any(x => x.State != State.Completed)
                 && !project.SubProjects.Any(x => x.State != State.Completed)
                 && !project.Tasks.SelectMany(s => s.SubTasks).Any(st => st.State != State.Completed))
             {

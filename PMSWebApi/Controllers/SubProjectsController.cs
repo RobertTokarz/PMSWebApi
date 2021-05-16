@@ -44,11 +44,13 @@ namespace PMSWebApi.Controllers
         // GET api/projects/{projectCode}/<ProjectsController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult<SubProject>> Get(string projectCode, int id)
-        {
+        {          
             try
             {
-                return Ok(await _projectRepository.GetSubProjectAsync(projectCode, id));
-            }
+                var result = await _projectRepository.GetSubProjectAsync(projectCode, id);
+                if (result == null) return NotFound();
+                return base.Ok(_mapper.Map<SubProjectModel>(result));
+             }
             catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "DB Issue");
@@ -57,7 +59,7 @@ namespace PMSWebApi.Controllers
 
         // POST api/projects/{projectCode}/<ProjectsController>
         [HttpPost]
-        public async Task<ActionResult<SubProjectModel>> Post( string projectCode, [FromBody] SubProject subProject)
+        public async Task<ActionResult<ProjectModel>> Post( string projectCode, [FromBody] SubProjectModel subProject)
         {
             try
             {
@@ -73,16 +75,16 @@ namespace PMSWebApi.Controllers
                 {
                     if(existingProject.SubProjects.Any(x => x.Code == subProject.Code)) return BadRequest($"Subproject {subProject.Code} alredy exists.");
                 }
-                var newEntity = _mapper.Map<SubProject>(subProject);
+                var newSubProject = _mapper.Map<SubProject>(subProject);
 
-                _projectRepository.AddEntity(newEntity);
+                _projectRepository.AddEntity(newSubProject);
 
                 _projectRepository.UpdateProjectState(existingProject, subProject.State);
 
                 if (await _projectRepository.SaveChangesAsync())
                 {
 
-                    return Created($"/api/projects/{projectCode}/{subProject.Code}", subProject);
+                    return Created($"/api/projects/{projectCode}/subprojects/{newSubProject.Id}", _mapper.Map<ProjectModel>(existingProject));
                 }
 
             }
@@ -95,23 +97,20 @@ namespace PMSWebApi.Controllers
         } 
 
         // PUT api/projects/{projectCode}/<ProjectsController>/5
-        [HttpPut("{code}")]
-        public async Task<ActionResult<SubProjectModel>> Put(string projectCode, string code,[FromBody] SubProject subProject)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ProjectModel>> Put(string projectCode, int id,[FromBody] SubProjectModel subProject)
         {
             try
             {
-                var oldSubProject = await _projectRepository.GetSubProjectAsync(projectCode, subProject.Id);
+                var oldSubProject = await _projectRepository.GetSubProjectAsync(projectCode, id);
                 if (oldSubProject == null) return NotFound($"Project {subProject.Code} not exists.");
-                var project = await _projectRepository.GetProjectAsync(projectCode);
-
-
+                var project = await _projectRepository.GetProjectAsync(projectCode,true,true);
                 _mapper.Map(subProject, oldSubProject);
-
                 _projectRepository.UpdateProjectState(project, subProject.State);
-
+                
                 if (await _projectRepository.SaveChangesAsync())
                 {
-                    return Ok(subProject);
+                    return Ok(_mapper.Map<ProjectModel>(project));
                 }
             }
             catch (Exception ex)
@@ -124,19 +123,19 @@ namespace PMSWebApi.Controllers
         }
 
         // DELETE api/projects/{projectCode}/<ProjectsController>/5
-        [HttpDelete("{code}")]
-        public async Task<IActionResult> Delete(string code)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete( string projectCode, int id)
         {
             try
             {
-                var project = await _projectRepository.GetProjectAsync(code, true, true);
+                var project = await _projectRepository.GetSubProjectAsync(projectCode, id, true);
                 if (project == null) return NotFound();
 
                 _projectRepository.DeleteEntity(project);
 
                 if (await _projectRepository.SaveChangesAsync())
                 {
-                    return Ok();
+                    return Ok($"Subproject {projectCode} deleted");
                 }
 
             }
