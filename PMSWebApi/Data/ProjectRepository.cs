@@ -88,10 +88,10 @@ namespace PMSWebApi.Data
             return await query.ToListAsync();
         }
 
-        public async Task<DTOEntities.Task> GetTaskAsync(string projectCode, int id, bool inculdeSubTasks = false)
+        public async Task<DTOEntities.Task> GetTaskAsync(int id, bool inculdeSubTasks = false)
         {
             _logger.LogInformation($"Get task specified by id from DB.");
-            IQueryable<DTOEntities.Task> query = _context.Projects.Where(p => p.Code == projectCode).SelectMany(x => x.Tasks).Where(y => y.Id == id);
+            IQueryable<DTOEntities.Task> query = _context.Tasks.Where(p => p.Id == id);
             if (inculdeSubTasks)
             {
                 query = query.Include(p => p.SubTasks);

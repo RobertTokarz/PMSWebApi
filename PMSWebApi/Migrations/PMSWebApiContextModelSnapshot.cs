@@ -139,7 +139,8 @@ namespace PMSWebApi.Migrations
                         .HasColumnType("int");
 
                     b.Property<int?>("SubProjectId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("SubProjectId");
 
                     b.HasKey("Id");
 

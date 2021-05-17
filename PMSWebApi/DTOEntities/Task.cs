@@ -18,8 +18,9 @@ namespace PMSWebApi.DTOEntities
         public  DateTime StartDate { get; set; }
         public  DateTime FinishDate { get; set; }
         public  State State { get; set; }
-        public IEnumerable<SubTask> SubTasks { get; set; } 
+        public IEnumerable<SubTask> SubTasks { get; set; }
 
+ 
         public int ProjectId { get; set; }
         public ProjectType ProjectType { get; set; }
 

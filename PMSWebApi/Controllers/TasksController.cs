@@ -48,7 +48,7 @@ namespace PMSWebApi.Controllers
         {
             try
             {
-                var result = await _projectRepository.GetTaskAsync(projectCode, id, includeSubTasks);
+                var result = await _projectRepository.GetTaskAsync( id, includeSubTasks);
                 if (result == null) return NotFound();
                 return base.Ok(_mapper.Map<TaskModel>(result));
             }
@@ -99,7 +99,8 @@ namespace PMSWebApi.Controllers
 
                 if (await _projectRepository.SaveChangesAsync())
                 {
-                    if(subProjectId == -1)
+                    var updatedProject = await _projectRepository.GetProjectAsync(projectCode, true, true);
+                    if (subProjectId == -1)
                     {
                         url = $"/api/projects/{projectCode}/tasks/{newTask.Id}";
                     }
@@ -107,7 +108,7 @@ namespace PMSWebApi.Controllers
                     {
                         url = url = $"/api/projects/{projectCode}/subprojects/{subProjectId}/tasks/{newTask.Id}";                        
                     }
-                    return Created(url, _mapper.Map<ProjectModel>(existingProject));
+                    return Created(url, _mapper.Map<ProjectModel>(updatedProject));
                 }
 
             }
@@ -121,15 +122,15 @@ namespace PMSWebApi.Controllers
 
         // PUT api/projects/{projectCode}/<ProjectsController>/5
         [HttpPut("{id}")]
-        public async Task<ActionResult<ProjectModel>> Put(string projectCode, int id, [FromBody] SubProjectModel subProject)
+        public async Task<ActionResult<ProjectModel>> Put(string projectCode, int id, [FromBody] TaskModel task,bool includeSubTasks = false)
         {
             try
             {
-                var oldSubProject = await _projectRepository.GetSubProjectAsync(projectCode, id);
-                if (oldSubProject == null) return NotFound($"Project {subProject.Code} not exists.");
+                var oldTask = await _projectRepository.GetTaskAsync( id, includeSubTasks);
+                if (oldTask == null) return NotFound($"Project {oldTask.Id} not exists.");
                 var project = await _projectRepository.GetProjectAsync(projectCode, true, true);
-                _mapper.Map(subProject, oldSubProject);
-                _projectRepository.UpdateProjectState(project, subProject.State);
+                _mapper.Map(task, oldTask);
+                _projectRepository.UpdateProjectState(project, task.State);
 
                 if (await _projectRepository.SaveChangesAsync())
                 {
@@ -152,7 +153,7 @@ namespace PMSWebApi.Controllers
         {
             try
             {
-                var task = await _projectRepository.GetTaskAsync(projectCode, id, true);
+                var task = await _projectRepository.GetTaskAsync( id, true);
                 if (task == null) return NotFound();
 
                 _projectRepository.DeleteEntity(task);

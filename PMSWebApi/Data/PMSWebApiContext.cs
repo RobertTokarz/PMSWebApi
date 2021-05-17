@@ -9,6 +9,17 @@ namespace PMSWebApi.Data
 {
     public class PMSWebApiContext : DbContext
     {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<DTOEntities.Task>()                         
+                .Property(p => p.SubProjectId)
+                .HasColumnName("SubProjectId")
+                .HasDefaultValue(null)
+                .IsRequired(false);
+           
+            base.OnModelCreating(modelBuilder);
+        }
+
         public PMSWebApiContext(DbContextOptions<PMSWebApiContext> options) : base(options) { }
 
         public DbSet<Project> Projects { get; set; }

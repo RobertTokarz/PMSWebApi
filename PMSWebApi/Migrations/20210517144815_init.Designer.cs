@@ -10,7 +10,7 @@ using PMSWebApi.Data;
 namespace PMSWebApi.Migrations
 {
     [DbContext(typeof(PMSWebApiContext))]
-    [Migration("20210516170934_init")]
+    [Migration("20210517144815_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -141,7 +141,8 @@ namespace PMSWebApi.Migrations
                         .HasColumnType("int");
 
                     b.Property<int?>("SubProjectId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("SubProjectId");
 
                     b.HasKey("Id");
 

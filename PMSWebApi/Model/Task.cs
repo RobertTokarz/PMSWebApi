@@ -17,7 +17,7 @@ namespace PMSWebApi.Model
         public IEnumerable<SubTaskModel> SubTasks { get; set; } = new List<SubTaskModel>();
         public int ProjectId { get; set; }
         public ProjectType ProjectType { get; set; }
-        public int SubProjectId { get; set; }
+        public int? SubProjectId { get;set; }
 
     }
 }
